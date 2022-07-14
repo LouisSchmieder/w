@@ -48,6 +48,12 @@ pub fn (mut p Parser) top_lvl() ?ast.Stmt {
 			return p.parse_class(base, base_size)
 		}
 		.name {
+			p.next()
+			if p.tok.kind == .lbr {
+				p.go_before(p.tok.pos)
+				return p.parse_method()
+			}
+			p.go_before(p.tok.pos)
 			return p.parse_assign()
 		}
 		.key_constructor {
@@ -57,6 +63,16 @@ pub fn (mut p Parser) top_lvl() ?ast.Stmt {
 			p.error('Unexpected top level statement')
 			return none
 		}
+	}
+}
+
+fn (mut p Parser) parse_imports() {
+	for p.tok.kind == .key_import {
+		p.next()
+		p.check(.str)
+		path := p.tok.lit
+		p.manager.add_parser('${p.file.filepath}/../$path')
+		p.next()
 	}
 }
 

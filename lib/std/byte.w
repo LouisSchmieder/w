@@ -1,3 +1,5 @@
+import "int.w"
+
 pub base[1] class Byte {
 
     constructor() {
@@ -12,4 +14,10 @@ pub base[1] class Byte {
         }
     }
 
+    test(abc: string) int {}
+
 } alias byte
+
+pub class String {
+
+} alias string

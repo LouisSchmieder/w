@@ -2,6 +2,7 @@ module token
 
 pub struct Position {
 pub mut:
+	before &Token = unsafe { nil }
 	line int
 	idx int
 	pos  int

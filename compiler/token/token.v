@@ -1,10 +1,15 @@
 module token
 
 pub struct Token {
-pub:
+pub mut:
 	pos  Position
+pub:
 	lit  string
 	kind TokenKind
+}
+
+pub fn (token Token) str() string {
+	return '$token.lit ($token.kind) [$token.pos.line:$token.pos.pos]'
 }
 
 pub fn make_token(pos Position, lit string, kind TokenKind) Token {

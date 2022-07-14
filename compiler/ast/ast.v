@@ -9,18 +9,18 @@ pub type Expr = IdentExpr | InfixExpr | CallExpr | EmptyExpr | StringExpr | CAnd
 pub struct ClassStmt {
 pub:
 	pos token.Position
-	typ Type
 pub mut:
+	typ Type
 	block BlockStmt
 }
 
 pub struct MethodStmt {
 pub:
 	pos token.Position
-	ret_typ Type
 	name string
 	parameters []MethodParameter
 pub mut:
+	ret_typ Type
 	block BlockStmt
 }
 
@@ -139,6 +139,7 @@ pub struct MethodParameter {
 pub:
 	pos token.Position
 	name string
+pub mut:
 	typ Type
 }
 /*

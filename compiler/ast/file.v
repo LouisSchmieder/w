@@ -4,6 +4,7 @@ import util
 import term
 import os
 
+[heap]
 pub struct File {
 pub mut:
 	filepath string
@@ -19,6 +20,10 @@ pub fn create_file(filepath string) &File {
 		scope: create_scope(unsafe { nil })
 		table: create_table()
 	}
+}
+
+pub fn (mut file File) clear_infos() {
+	file.infos.clear()
 }
 
 pub fn (file File) write_errors() {

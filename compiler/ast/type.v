@@ -11,8 +11,9 @@ pub enum AccessType {
 }
 
 pub struct TypeSymbol {
-pub:
+pub mut:
 	info  TypeInfo
+pub:
 	name  string
 	bname string // backend name
 }
@@ -42,7 +43,7 @@ pub fn (ts TypeSymbol) type_name() string {
 }
 
 pub struct Alias {
-pub:
+pub mut:
 	base Type
 }
 
@@ -59,16 +60,49 @@ pub:
 }
 
 pub struct Array {
-pub:
+pub mut:
 	typ Type
 }
 
 pub struct Pointer {
-pub:
+pub mut:
 	base Type
 }
 
-pub fn (t Table) root(info TypeInfo) RootClass {
+fn (mut alias Alias) update(table &Table) {
+	if alias.base.idx != -1 {
+		alias.base = table.get_type(alias.base.name)
+	}
+}
+
+fn (mut class Class) update(table &Table) {
+	for i, parent in class.parents {
+		if parent.idx != -1 {
+			class.parents[i] = table.get_type(parent.name)
+		}
+	}
+}
+
+fn (mut bs BaseClass) update(table &Table) {
+}
+
+fn (mut arr Array) update(table &Table) {
+	if arr.typ.idx != -1 {
+		arr.typ = table.get_type(arr.typ.name)
+	}
+}
+
+fn (mut p Pointer) update(table &Table) {
+	if p.base.idx != -1 {
+		p.base = table.get_type(p.base.name)
+	}
+}
+
+pub fn (t &Table) get_access_type(info TypeInfo) AccessType {
+	return t.root(info).access
+}
+
+pub fn (t &Table) root(info TypeInfo) RootClass {
 	match info {
 		Alias {
 			return t.root(t.get_type_symbol(info.base).info)
@@ -81,6 +115,27 @@ pub fn (t Table) root(info TypeInfo) RootClass {
 		}
 		Pointer {
 			return t.root(t.get_type_symbol(info.base).info)
+		}
+	}
+}
+
+pub fn (mut t Table) update_symbol(idx int) {
+	mut sym := t.type_syms[idx]
+	match mut sym.info {
+		Alias {
+			sym.info.update(t)
+		}
+		Class {
+			sym.info.update(t)
+		}
+		BaseClass {
+			sym.info.update(t)
+		}
+		Array {
+			sym.info.update(t)
+		}
+		Pointer {
+			sym.info.update(t)
 		}
 	}
 }
