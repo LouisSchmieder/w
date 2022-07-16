@@ -7,6 +7,7 @@ import ast
 
 fn main() {
 	mut parser := parser.create_parser_manager()
+	parser.init()
 	parser.add_parser(os.args[1])
 	parser.write_errors()
 	mut tables := parser.files.map(it.table)

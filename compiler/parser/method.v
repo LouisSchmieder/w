@@ -19,12 +19,11 @@ fn (mut p Parser) parse_constructor() ast.MethodStmt {
 
 	typ := p.typ()
 
-
 	p.open_scope()
 	block := p.parse_block(false)
 	p.close_scope()
 
-	p.scope.add_method(ast.create_method('constructor', p.access, p.class_type))
+	p.scope.add_method(ast.create_method('constructor', p.access, p.class_type, parameters))
 
 	return ast.MethodStmt{
 		name: 'constructor'
@@ -50,7 +49,7 @@ fn (mut p Parser) parse_destructor() ast.MethodStmt {
 	block := p.parse_block(false)
 	p.close_scope()
 
-	p.scope.add_method(ast.create_method('destructor', p.access, p.class_type))
+	p.scope.add_method(ast.create_method('destructor', p.access, p.class_type, []))
 
 	return ast.MethodStmt{
 		name: 'destructor'
@@ -65,7 +64,7 @@ fn (mut p Parser) parse_method() ast.MethodStmt {
 	name := p.name()
 
 	parameters := p.parse_parameters()
-	
+
 	typ := p.typ()
 
 	p.open_scope()
@@ -77,7 +76,7 @@ fn (mut p Parser) parse_method() ast.MethodStmt {
 	block := p.parse_block(false)
 	p.close_scope()
 
-	p.scope.add_method(ast.create_method(name, p.access, typ))
+	p.scope.add_method(ast.create_method(name, p.access, typ, parameters))
 
 	return ast.MethodStmt{
 		name: name
@@ -91,7 +90,7 @@ fn (mut p Parser) parse_method() ast.MethodStmt {
 fn (mut p Parser) parse_parameters() []ast.MethodParameter {
 	p.check(.lbr)
 	p.next()
-	
+
 	mut parameters := []ast.MethodParameter{}
 
 	for {

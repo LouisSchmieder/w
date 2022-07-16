@@ -21,15 +21,19 @@ fn (mut p Parser) parse_class(base bool, base_size int) ast.ClassStmt {
 		}
 	}
 
+	p.open_scope()
+
 	mut info := if base {
 		ast.TypeInfo(ast.BaseClass{
 			size: base_size
 			access: p.access
+			scope: p.scope
 		})
 	} else {
 		ast.TypeInfo(ast.Class{
 			access: p.access
 			parents: parents
+			scope: p.scope
 		})
 	}
 
@@ -40,9 +44,12 @@ fn (mut p Parser) parse_class(base bool, base_size int) ast.ClassStmt {
 	ptyp := p.file.table.add_type('&$name', 'pointer_$name', ast.Pointer{typ}) or {
 		p.file.table.get_type('&$name')
 	}
-
-	p.open_scope()
 	p.scope.add_var(ast.create_var('this', ptyp, .priv, false))
+	mut this := p.scope.get_var('this') or {
+		p.error('Var `this` was not added to scope')
+		return ast.ClassStmt{}
+	}
+	this.eic = true
 
 	tmp_base_class := p.inside_base_class
 	tmp_inside_class := p.inside_class

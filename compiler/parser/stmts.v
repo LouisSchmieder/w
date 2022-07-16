@@ -71,7 +71,7 @@ fn (mut p Parser) parse_imports() {
 		p.next()
 		p.check(.str)
 		path := p.tok.lit
-		p.manager.add_parser('${p.file.filepath}/../$path')
+		p.manager.add_parser('$p.file.filepath/../$path')
 		p.next()
 	}
 }
@@ -87,11 +87,11 @@ fn (mut p Parser) stmt() ast.Stmt {
 	p.mutable = mutable
 
 	match p.tok.kind {
-//		.key_for {}
+		//		.key_for {}
 		.key_if {
 			return p.parse_if()
 		}
-//		.key_match {} 
+		//		.key_match {}
 		.lcbr {
 			return p.parse_block(false)
 		}
@@ -153,7 +153,6 @@ fn (mut p Parser) parse_assign_with_left(left ast.Expr, pos token.Position) ast.
 		left_type = p.typ()
 	}
 
-
 	if left is ast.IdentExpr {
 		// Declaration
 		if p.tok.kind != .eq {
@@ -171,13 +170,24 @@ fn (mut p Parser) parse_assign_with_left(left ast.Expr, pos token.Position) ast.
 			}
 		}
 	}
-	
+
 	p.check(.eq)
 	p.next()
 	right := p.expr()
+
+	if left is ast.IdentExpr {
+		typ := if left_type != ast.Type{} {
+			left_type
+		} else {
+			ast.Type{'unresolved', -2}
+		}
+		left_type = typ
+		p.scope.add_var(ast.create_var(left.name, typ, p.access, p.mutable))
+	}
 	return ast.AssignStmt{
 		pos: pos
 		left: left
+		left_type: left_type
 		right: right
 		define: true
 	}

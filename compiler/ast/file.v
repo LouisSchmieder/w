@@ -17,7 +17,7 @@ pub mut:
 pub fn create_file(filepath string) &File {
 	return &File{
 		filepath: filepath
-		scope: create_scope(unsafe { nil })
+		scope: create_top_scope()
 		table: create_table()
 	}
 }
@@ -36,7 +36,7 @@ pub fn (file File) write_errors() {
 		tok := err.tok
 		line := tok.pos.line
 		mut data := []string{}
-		data << '${term.gray(file.filepath)}:${line}:$tok.pos.pos: ${term.red(term.bold('error:'))} ${term.red(err.msg)}'
+		data << '${term.gray(file.filepath)}:$line:$tok.pos.pos: ${term.red(term.bold('error:'))} ${term.red(err.msg)}'
 		if line > 1 {
 			data << '${line - 2:5} | ${lines[line - 2]}'
 			data << '${line - 1:5} | ${lines[line - 1]}'

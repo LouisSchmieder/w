@@ -13,6 +13,10 @@ fn (mut c Checker) get_table(typ ast.Type) ?&ast.Table {
 }
 
 fn (mut c Checker) typ(mut typ ast.Type) {
+	if typ.name == '' {
+		typ = &ast.Type{'', -1}
+		return
+	}
 	mut table := c.get_table(typ) or {
 		c.error('Type `$typ.name` does not exists', c.current_pos)
 		return
@@ -25,7 +29,5 @@ fn (mut c Checker) type_symbol(typ ast.Type) &ast.TypeSymbol {
 		c.error('Type `$typ.name` does not exists', c.current_pos)
 		return unsafe { 0 }
 	}
-	eprintln(table)
-	eprintln(typ)
 	return table.get_type_symbol(typ)
 }

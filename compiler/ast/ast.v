@@ -2,82 +2,113 @@ module ast
 
 import token
 
-pub type Stmt = AssignStmt | ClassStmt | MethodStmt | ExprStmt | BlockStmt | IfStmt
+pub type Stmt = AssignStmt | BlockStmt | ClassStmt | ExprStmt | IfStmt | MethodStmt
 
-pub type Expr = IdentExpr | InfixExpr | CallExpr | EmptyExpr | StringExpr | CAndExpr | COrExpr | CompareExpr | NegateExpr | BracketExpr
+pub type Expr = BracketExpr
+	| CAndExpr
+	| COrExpr
+	| CallExpr
+	| CastExpr
+	| CompareExpr
+	| EmptyExpr
+	| IdentExpr
+	| InfixExpr
+	| NegateExpr
+	| NewExpr
+	| NumberExpr
+	| StringExpr
 
 pub struct ClassStmt {
 pub:
 	pos token.Position
 pub mut:
-	typ Type
+	typ   Type
 	block BlockStmt
 }
 
 pub struct MethodStmt {
 pub:
-	pos token.Position
-	name string
+	pos        token.Position
+	name       string
 	parameters []MethodParameter
 pub mut:
 	ret_typ Type
-	block BlockStmt
+	block   BlockStmt
 }
 
 pub struct ExprStmt {
 pub:
-	pos token.Position
+	pos  token.Position
 	expr Expr
 }
 
 pub struct BlockStmt {
 pub:
-	pos token.Position
+	pos   token.Position
 	stmts []Stmt
 	scope &Scope
 }
 
 pub struct AssignStmt {
 pub:
-	pos token.Position
-	left Expr
-	left_type Type
-	right Expr
-	right_type Type
+	pos    token.Position
 	define bool
+pub mut:
+	left       Expr
+	left_type  Type
+	right      Expr
+	right_type Type
 }
 
 pub struct IfStmt {
 pub:
-	pos token.Position
+	pos      token.Position
 	branches []IfBranch
 }
 
 pub struct IfBranch {
 pub:
-	pos token.Position
-	cond Expr
+	pos     token.Position
+	cond    Expr
 	is_else bool
-	block BlockStmt
+	block   BlockStmt
 }
 
 pub struct CallExpr {
-pub:
-	pos token.Position
-	base Expr
+pub mut:
 	return_type Type
+pub:
+	pos        token.Position
+	left       Expr
+	name       string
+	parameters []Expr
+}
+
+pub struct CastExpr {
+pub mut:
+	to Type
+pub:
+	pos  token.Position
+	expr Expr
+}
+
+pub struct NewExpr {
+pub mut:
+	typ Type
+pub:
+	pos        token.Position
 	parameters []Expr
 }
 
 pub struct IdentExpr {
 pub:
-	pos token.Position
+	pos  token.Position
 	name string
 }
 
 pub struct InfixExpr {
 pub:
-	pos token.Position
+	pos  token.Position
 	left Expr
 	name string
 }
@@ -93,15 +124,21 @@ pub:
 	lit string
 }
 
-pub struct CAndExpr {
+pub struct NumberExpr {
 pub:
 	pos token.Position
+	num string
+}
+
+pub struct CAndExpr {
+pub:
+	pos   token.Position
 	exprs []Expr
 }
 
 pub struct COrExpr {
 pub:
-	pos token.Position
+	pos   token.Position
 	exprs []Expr
 }
 
@@ -117,42 +154,29 @@ pub enum CompareKind {
 
 pub struct CompareExpr {
 pub:
-	pos token.Position
-	kind CompareKind
-	left Expr
+	pos   token.Position
+	kind  CompareKind
+	left  Expr
 	right Expr
 }
 
 pub struct NegateExpr {
 pub:
-	pos token.Position
+	pos  token.Position
 	expr Expr
 }
 
 pub struct BracketExpr {
 pub:
-	pos token.Position
+	pos  token.Position
 	expr Expr
 }
 
 pub struct MethodParameter {
 pub:
-	pos token.Position
+	pos  token.Position
 	name string
 pub mut:
 	typ Type
 }
-/*
-pub fn (class ClassStmt) str() string {
-	return 'class $class.typ.name'
-}
 
-pub fn (method MethodStmt) str() string {
-	parameters := method.parameters.map(it.str()).join(', ')
-	return '${method.name}($parameters)'
-}
-
-pub fn (para MethodParameter) str() string {
-	return '$para.name: $para.typ.name'
-}
-*/

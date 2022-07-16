@@ -2,7 +2,7 @@ module token
 
 pub struct Token {
 pub mut:
-	pos  Position
+	pos Position
 pub:
 	lit  string
 	kind TokenKind

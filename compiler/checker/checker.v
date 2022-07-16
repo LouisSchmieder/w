@@ -6,12 +6,16 @@ import util
 
 pub struct Checker {
 mut:
-	scope &ast.Scope
-	file &ast.File
+	scope        &ast.Scope
+	file         &ast.File
 	global_table &ast.Table
 
-	current_pos token.Position
+	void_type ast.Type
+
+	current_pos       token.Position
+	current_str       string
 	inside_base_class bool
+	add_into_content  bool
 }
 
 pub fn create_checker(file &ast.File, global_table &ast.Table) &Checker {
@@ -24,6 +28,7 @@ pub fn create_checker(file &ast.File, global_table &ast.Table) &Checker {
 
 pub fn (mut c Checker) check_file() {
 	c.file.clear_infos()
+	c.void_type = c.global_table.get_type('void')
 	for stmt in c.file.stmts {
 		c.stmt(stmt)
 	}
@@ -40,7 +45,7 @@ pub fn (mut c Checker) stmt(node_ ast.Stmt) {
 			c.method_stmt(mut node)
 		}
 		ast.AssignStmt {
-			// c.assign_stmt(mut node)
+			c.assign_stmt(mut node)
 		}
 		ast.BlockStmt {
 			c.block_stmt(mut node)
@@ -50,7 +55,7 @@ pub fn (mut c Checker) stmt(node_ ast.Stmt) {
 }
 
 fn (mut c Checker) error(msg string, pos token.Position) {
-	c.file.infos << util.error(msg, token.Token{pos: pos})
+	c.file.infos << util.error(msg, token.Token{ lit: c.current_str, pos: pos })
 }
 
 fn (mut c Checker) block_stmt(mut node ast.BlockStmt) {
@@ -66,9 +71,7 @@ fn (mut c Checker) block_stmt(mut node ast.BlockStmt) {
 fn (mut c Checker) class_stmt(mut node ast.ClassStmt) {
 	c.typ(mut node.typ)
 	sym := c.type_symbol(node.typ)
-	mut table := c.get_table(node.typ) or {
-		return
-	}
+	mut table := c.get_table(node.typ) or { return }
 
 	root := table.root(sym.info)
 	is_base_class := root is ast.BaseClass
@@ -88,11 +91,36 @@ fn (mut c Checker) class_stmt(mut node ast.ClassStmt) {
 
 fn (mut c Checker) method_stmt(mut node ast.MethodStmt) {
 	c.typ(mut node.ret_typ)
-	
+
 	for mut parameter in node.parameters {
-		c.current_pos =parameter.pos
+		c.current_pos = parameter.pos
 		c.typ(mut parameter.typ)
 	}
 
 	c.stmt(node.block)
+}
+
+fn (mut c Checker) assign_stmt(mut node ast.AssignStmt) {
+	if !node.define {
+		c.add_into_content = true
+		c.expr(node.left)
+		c.add_into_content = false
+		return
+	}
+	node.right_type = c.expr(node.right)
+	if node.right_type.idx == -1 {
+		return
+	}
+	if node.left_type != ast.Type{} {
+		mut left := node.left as ast.IdentExpr
+		if node.left_type.idx == -2 {
+			// Unresolved
+			c.set_ident_type(left, node.right_type)
+		} else {
+			c.set_ident_type(left, node.left_type)
+		}
+		c.add_into_content = true
+		c.expr(left)
+		c.add_into_content = false
+	}
 }

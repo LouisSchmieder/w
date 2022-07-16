@@ -6,7 +6,7 @@ pub struct Scanner {
 mut:
 	data []u8
 pub mut:
-	pos  token.Position
+	pos token.Position
 }
 
 pub fn create_scanner(data []u8) Scanner {

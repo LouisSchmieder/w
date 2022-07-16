@@ -13,13 +13,12 @@ pub:
 	idx  int
 }
 
+pub const (
+	invalid = Type{'', -1}
+)
+
 pub fn create_table() &Table {
-	mut table := &Table{}
-	table.add_type('void', 'void', BaseClass{
-		size: 0
-		access: .publ
-	}) or { return table }
-	return table
+	return &Table{}
 }
 
 pub fn (table &Table) get_type_symbol(typ Type) &TypeSymbol {
@@ -66,9 +65,7 @@ pub fn merge_tables(mut tables []&Table) &Table {
 		for key, value in table.types {
 			sym := table.get_type_symbol(idx: value)
 			if table.get_access_type(sym.info) == .publ {
-				global.add_type(sym.name, sym.bname, sym.info) or {
-					continue
-				}
+				global.add_type(sym.name, sym.bname, sym.info) or { continue }
 				deleted << key
 			}
 		}
@@ -82,7 +79,7 @@ pub fn merge_tables(mut tables []&Table) &Table {
 			tables[i].types[key] = idx
 		}
 		tables[i].update_symbols()
- 	}
+	}
 
 	global.update_symbols()
 

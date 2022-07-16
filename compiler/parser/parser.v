@@ -10,11 +10,22 @@ import os
 pub struct ParserManager {
 pub mut:
 	parsers map[string]Parser
-	files []&ast.File
+	files   []&ast.File
 }
 
 pub fn create_parser_manager() ParserManager {
 	return ParserManager{}
+}
+
+pub fn (mut pm ParserManager) init() {
+	path := util.get_default_lib_path()
+	// Default imports
+	files := os.ls('$path/std') or { [] }
+	for file in files {
+		if file.ends_with('.w') {
+			pm.add_parser('$path/std/$file')
+		}
+	}
 }
 
 pub fn (mut pm ParserManager) add_parser(filepath_ string) {
@@ -22,6 +33,7 @@ pub fn (mut pm ParserManager) add_parser(filepath_ string) {
 	if filepath in pm.parsers {
 		return
 	}
+	eprintln('Added file $filepath')
 	mut parser := create_parser(filepath, &pm) or {
 		eprintln(err)
 		return
@@ -46,10 +58,10 @@ mut:
 	scope   &ast.Scope
 
 	inside_base_class bool
-	inside_class bool
-	access ast.AccessType
-	mutable bool
-	class_type ast.Type
+	inside_class      bool
+	access            ast.AccessType
+	mutable           bool
+	class_type        ast.Type
 }
 
 pub fn create_parser(filepath string, manager &ParserManager) ?Parser {
@@ -132,27 +144,29 @@ fn (mut p Parser) number() string {
 }
 
 fn (mut p Parser) typ() ast.Type {
-	mut arr := false
-	mut len := ''
 	if p.tok.kind !in [.lsbr, .name] {
 		return p.file.table.get_type('void')
 	}
 	if p.tok.kind == .lsbr {
 		p.next()
-		arr = true
-		if p.tok.kind == .num {
-			len = p.number()
-		}
+		// mut len := ''
+		// if p.tok.kind == .num {
+		// len = p.number()
+		// }
 		p.check(.rsbr)
 		p.next()
-	}
-	mut name := p.name()
-	if arr {
-		if len.len > 0 {
-			name = '[$len]$name'
-		} else {
-			name = '[]$name'
+		typ := p.typ()
+
+		arr := ast.Array{ast.Type{typ.name, 0}}
+
+		name := '[]$typ.name'
+		if !p.file.table.contains_type(name) {
+			return p.file.table.add_type(name, 'array', arr) or {
+				p.error('Something went wrong with array creation')
+				return ast.Type{}
+			}
 		}
+		return p.file.table.get_type(name)
 	}
-	return p.file.table.get_type(name)
+	return p.file.table.get_type(p.name())
 }

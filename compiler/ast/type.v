@@ -12,7 +12,7 @@ pub enum AccessType {
 
 pub struct TypeSymbol {
 pub mut:
-	info  TypeInfo
+	info TypeInfo
 pub:
 	name  string
 	bname string // backend name
@@ -51,12 +51,14 @@ pub struct Class {
 pub mut:
 	parents []Type
 	access  AccessType
+	scope   &Scope
 }
 
 pub struct BaseClass {
 pub:
 	size   int
 	access AccessType
+	scope  &Scope
 }
 
 pub struct Array {
