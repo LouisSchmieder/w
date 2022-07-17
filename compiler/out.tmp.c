@@ -1,74 +1,114 @@
 
 typedef struct System System;
-typedef System* pointer_System;
-typedef System alias_system;
-typedef struct Int Int;
-typedef Int* pointer_Int;
-typedef Int alias_int;
-typedef struct Bool Bool;
-typedef Bool* pointer_Bool;
-typedef Bool alias_bool;
-typedef struct Byte Byte;
-typedef Byte* pointer_Byte;
-typedef Byte alias_byte;
-typedef struct Void Void;
-typedef Void* pointer_Void;
-typedef Void alias_void;
-typedef struct Array Array;
-typedef Array* pointer_Array;
-typedef Array alias_array;
 typedef struct String String;
-typedef String* pointer_String;
-typedef String alias_string;
+typedef struct Array Array;
+typedef struct Int Int;
+typedef struct Void Void;
+typedef struct Bool Bool;
+typedef struct Byte Byte;
 typedef struct Main Main;
-typedef Main* pointer_Main;
 typedef struct Program Program;
-typedef Program* pointer_Program;
-
-struct System {
-	pointer_System this;
-	alias_string newLine;
-};
 
 struct Int {
 	char data_Int[4];
-	pointer_System this;
-};
-
-struct Bool {
-	char data_Bool[1];
-	pointer_System this;
-};
-
-struct Byte {
-	char data_Byte[1];
-	pointer_System this;
 };
 
 struct Void {
 	char data_Void[0];
-	pointer_System this;
 };
 
 struct Array {
-	pointer_System this;
-	alias_int length;
-	alias_void data;
+	Int length;
+	Void data;
 };
 
 struct String {
-	pointer_System this;
 	Array bytes;
 };
 
-struct Main {
-	pointer_Main this;
-	Program program;
+struct System {
+	String newLine;
+};
+
+struct Bool {
+	char data_Bool[1];
+};
+
+struct Byte {
+	char data_Byte[1];
 };
 
 struct Program {
-	pointer_Int this;
 };
 
+struct Main {
+	Program program;
+};
+
+
+
+// -- Methods of class System --
+System constructor(System* this);
+Void print(String msg);
+Void println(String msg);
+
+// -- Methods of class Int --
+
+// -- Methods of class Bool --
+Bool constructor(Bool* this);
+
+// -- Methods of class Byte --
+
+// -- Methods of class Void --
+
+// -- Methods of class Array --
+
+// -- Methods of class String --
+String constructor(String* this, Array bytes);
+
+// -- Methods of class Main --
+Main constructor(Main* this, Array args);
+Void beginProgram();
+
+// -- Methods of class Program --
+Program constructor(Program* this);
+Void begin();
+
+System constructor(System* this) {
+	System this = {};
+	return this;
+}
+
+Void print(String msg) {
+}
+
+Void println(String msg) {
+}
+
+Bool constructor(Bool* this) {
+	Bool this = {};
+	return this;
+}
+
+String constructor(String* this, Array bytes) {
+	String this = {};
+	return this;
+}
+
+Main constructor(Main* this, Array args) {
+	Main this = {};
+	return this;
+}
+
+Void beginProgram() {
+}
+
+Program constructor(Program* this) {
+	Program this = {};
+	return this;
+}
+
+Void begin() {
+}
 
 

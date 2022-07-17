@@ -31,3 +31,11 @@ fn (mut c Checker) type_symbol(typ ast.Type) &ast.TypeSymbol {
 	}
 	return table.get_type_symbol(typ)
 }
+
+fn (mut c Checker) check_scope() {
+	for mut var in c.scope.vars {
+		if var.typ.idx >= 0 {
+			c.typ(mut var.typ)
+		}
+	}
+}

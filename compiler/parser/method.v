@@ -17,8 +17,6 @@ fn (mut p Parser) parse_constructor() ast.MethodStmt {
 		parameters = p.parse_parameters()
 	}
 
-	typ := p.typ()
-
 	p.open_scope()
 	block := p.parse_block(false)
 	p.close_scope()
@@ -28,7 +26,7 @@ fn (mut p Parser) parse_constructor() ast.MethodStmt {
 	return ast.MethodStmt{
 		name: 'constructor'
 		pos: pos
-		ret_typ: typ
+		ret_typ: p.class_type
 		parameters: parameters
 		block: block
 	}

@@ -36,6 +36,10 @@ pub fn (table &Table) get_type(name string) Type {
 	return Type{name, -1}
 }
 
+pub fn (table &Table) get_pointer(typ Type) Type {
+	return table.get_type('&$typ.name')
+}
+
 pub fn (mut table Table) add_type(name string, bname string, info TypeInfo) ?Type {
 	if !table.contains_type(name) {
 		table.type_syms << &TypeSymbol{

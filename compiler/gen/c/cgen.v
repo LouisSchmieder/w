@@ -9,12 +9,18 @@ mut:
 	headers      strings.Builder
 	types        strings.Builder
 	declarations strings.Builder
+	methods      strings.Builder
 	main         strings.Builder
 	src          strings.Builder
 
 	scope &ast.Scope
 	table &ast.Table
 	file  &ast.File
+
+	generated_classes []string
+
+	indent int
+	new_line bool
 
 	inside_class bool
 	class_type   ast.Type
@@ -49,8 +55,9 @@ pub fn (mut g CGen) gen_file(files_ []&ast.File) string {
 		g.headers.str(),
 		g.types.str(),
 		g.declarations.str(),
-		g.main.str(),
+		g.methods.str(),
 		g.src.str(),
+		g.main.str()
 	].join('\n')
 }
 
@@ -66,9 +73,18 @@ fn (mut g CGen) handle_file(mut file ast.File) {
 }
 
 fn (mut g CGen) write(data string) {
+	if g.new_line {
+		g.new_line = false
+		g.src.write_string('\t'.repeat(g.indent))
+	}
 	g.src.write_string(data)
 }
 
 fn (mut g CGen) writeln(data string) {
+	if g.new_line {
+		g.new_line = false
+		g.src.write_string('\t'.repeat(g.indent))
+	}
 	g.src.writeln(data)
+	g.new_line = true
 }

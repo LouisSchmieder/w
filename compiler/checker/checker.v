@@ -27,6 +27,7 @@ pub fn create_checker(file &ast.File, global_table &ast.Table) &Checker {
 }
 
 pub fn (mut c Checker) check_file() {
+	c.check_scope()
 	c.file.clear_infos()
 	c.void_type = c.global_table.get_type('void')
 	for stmt in c.file.stmts {
@@ -65,6 +66,7 @@ fn (mut c Checker) error(msg string, pos token.Position) {
 
 fn (mut c Checker) block_stmt(mut node ast.BlockStmt) {
 	c.scope = node.scope
+	c.check_scope()
 
 	for stmt in node.stmts {
 		c.stmt(stmt)
@@ -87,7 +89,6 @@ fn (mut c Checker) class_stmt(mut node ast.ClassStmt) {
 			c.typ(mut parent)
 		}
 	}
-
 	tmp_base_class := c.inside_base_class
 	c.inside_base_class = is_base_class
 	c.stmt(node.block)
