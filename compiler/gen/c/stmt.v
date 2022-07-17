@@ -57,7 +57,7 @@ fn (mut g CGen) method_stmt(node ast.MethodStmt) {
 	mut params := []ast.MethodParameter{}
 	name := '${g.typ(g.class_type)}__$node.name'
 	constructor := node.name == 'constructor'
-	if !constructor  {
+	if !constructor {
 		table := g.get_table(g.class_type)
 		params << ast.MethodParameter{
 			name: 'this'
@@ -76,7 +76,7 @@ fn (mut g CGen) method_stmt(node ast.MethodStmt) {
 	g.writeln('$method {')
 	g.indent++
 
-	if constructor {	
+	if constructor {
 		g.writeln('${g.typ(g.class_type)} this = {};')
 		if g.is_base_class {
 			class := g.get_table(node.ret_typ).get_type_symbol(node.ret_typ).base_class()
@@ -104,9 +104,7 @@ fn (mut g CGen) assign_stmt(node ast.AssignStmt) {
 	}
 
 	if node.left is ast.IdentExpr {
-		mut var := g.scope.get_var((node.left as ast.IdentExpr).name) or {
-			&ast.Var{}
-		}
+		mut var := g.scope.get_var((node.left as ast.IdentExpr).name) or { &ast.Var{} }
 		if !var.eic {
 			g.write('${g.typ(var.typ)} ')
 			var.eic = true

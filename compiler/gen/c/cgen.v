@@ -20,13 +20,13 @@ mut:
 	generated_classes []string
 
 	set_neic_global_scope bool
-	indent int
-	new_line bool
+	indent                int
+	new_line              bool
 
 	inside_class  bool
 	is_base_class bool
 
-	class_type   ast.Type
+	class_type ast.Type
 }
 
 pub fn create_cgen(global_table &ast.Table) &CGen {
@@ -61,7 +61,7 @@ pub fn (mut g CGen) gen_file(files_ []&ast.File) string {
 		g.declarations.str(),
 		g.methods.str(),
 		g.src.str(),
-		g.main.str()
+		g.main.str(),
 	].join('\n')
 }
 

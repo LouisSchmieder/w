@@ -55,9 +55,7 @@ fn (mut g CGen) expr(expr ast.Expr) {
 			g.write(' $str ')
 			g.expr(expr.right)
 		}
-		else {
-
-		}
+		else {}
 	}
 }
 
@@ -92,4 +90,3 @@ fn (mut g CGen) call_expr(expr ast.CallExpr) {
 	}
 	g.write(')')
 }
-

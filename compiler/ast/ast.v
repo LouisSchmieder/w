@@ -20,7 +20,7 @@ pub type Expr = BracketExpr
 
 pub struct ClassStmt {
 pub:
-	pos token.Position
+	pos        token.Position
 	base_class bool
 pub mut:
 	typ   Type
@@ -111,7 +111,7 @@ pub:
 
 pub struct InfixExpr {
 pub mut:
-	ptr  bool
+	ptr bool
 pub:
 	pos  token.Position
 	left Expr
