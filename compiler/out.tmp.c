@@ -1,9 +1,10 @@
+#include <string.h>
+#define _STR(str, len) String__constructor(Array__constructor(str, Int__constructor((char*)(long)len)))
 
 typedef struct System System;
 typedef struct String String;
 typedef struct Array Array;
 typedef struct Int Int;
-typedef struct Void Void;
 typedef struct Bool Bool;
 typedef struct Byte Byte;
 typedef struct Main Main;
@@ -13,13 +14,9 @@ struct Int {
 	char data_Int[4];
 };
 
-struct Void {
-	char data_Void[0];
-};
-
 struct Array {
 	Int length;
-	Void data;
+	void* data;
 };
 
 struct String {
@@ -48,67 +45,96 @@ struct Main {
 
 
 // -- Methods of class System --
-System constructor(System* this);
-Void print(String msg);
-Void println(String msg);
+System System__constructor();
+void System__print(System* this, String msg);
+void System__println(System* this, String msg);
 
 // -- Methods of class Int --
+Int Int__constructor(char* data_Int);
 
 // -- Methods of class Bool --
-Bool constructor(Bool* this);
+Bool Bool__constructor(char* data_Bool);
 
 // -- Methods of class Byte --
 
-// -- Methods of class Void --
+// -- Methods of class void --
 
 // -- Methods of class Array --
+Array Array__constructor(void* data, Int length);
 
 // -- Methods of class String --
-String constructor(String* this, Array bytes);
+String String__constructor(Array bytes);
 
 // -- Methods of class Main --
-Main constructor(Main* this, Array args);
-Void beginProgram();
+Main Main__constructor(Array args);
+void Main__beginProgram(Main* this);
 
 // -- Methods of class Program --
-Program constructor(Program* this);
-Void begin();
+Program Program__constructor();
+void Program__begin(Program* this);
 
-System constructor(System* this) {
+System System__constructor() {
 	System this = {};
+	this.newLine = _STR("\n", 2);
 	return this;
 }
 
-Void print(String msg) {
+void System__print(System* this, String msg) {
 }
 
-Void println(String msg) {
+void System__println(System* this, String msg) {
+	System__print(this, msg);
+	System__print(this, this->newLine);
 }
 
-Bool constructor(Bool* this) {
+System system = /*new System*/ System__constructor();
+Int Int__constructor(char* data_Int) {
+	Int this = {};
+	memcpy(this.data_Int, data_Int, 4);
+	return this;
+}
+
+Bool Bool__constructor(char* data_Bool) {
 	Bool this = {};
+	memcpy(this.data_Bool, data_Bool, 1);
 	return this;
 }
 
-String constructor(String* this, Array bytes) {
+Array Array__constructor(void* data, Int length) {
+	Array this = {};
+	this.length = length;
+	this.data = data;
+	return this;
+}
+
+String String__constructor(Array bytes) {
 	String this = {};
+	this.bytes = bytes;
 	return this;
 }
 
-Main constructor(Main* this, Array args) {
+Main Main__constructor(Array args) {
 	Main this = {};
+	this.program = /*new Program*/ Program__constructor();
 	return this;
 }
 
-Void beginProgram() {
+void Main__beginProgram(Main* this) {
+	Program__begin(&this->program);
 }
 
-Program constructor(Program* this) {
+Program Program__constructor() {
 	Program this = {};
 	return this;
 }
 
-Void begin() {
+void Program__begin(Program* this) {
+	Byte bitField = (Byte) Int__constructor((char*) (long) 0x00);
+	String b;
+	String a = b;
+	if (!(a == b)) {
+		System__println(&system, _STR("test", 4));
+	}
 }
 
 

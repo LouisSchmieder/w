@@ -58,6 +58,9 @@ fn (mut g CGen) gen_types(table &ast.Table) {
 
 fn (mut g CGen) gen_class(sym ast.TypeSymbol) {
 	name := sym.bname
+	if name == 'void' {
+		return
+	}
 	if name in g.generated_classes {
 		return
 	}

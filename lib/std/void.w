@@ -1,3 +1,3 @@
-pub base[0] class Void {
+pub base[0] class void {
 
-} alias void
+} alias Void

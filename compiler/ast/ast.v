@@ -21,6 +21,7 @@ pub type Expr = BracketExpr
 pub struct ClassStmt {
 pub:
 	pos token.Position
+	base_class bool
 pub mut:
 	typ   Type
 	block BlockStmt
@@ -78,6 +79,7 @@ pub:
 pub struct CallExpr {
 pub mut:
 	return_type Type
+	left_type   Type
 pub:
 	pos        token.Position
 	left       Expr
@@ -108,6 +110,8 @@ pub:
 }
 
 pub struct InfixExpr {
+pub mut:
+	ptr  bool
 pub:
 	pos  token.Position
 	left Expr

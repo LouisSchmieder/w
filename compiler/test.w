@@ -23,7 +23,7 @@ pub class Program {
         b: string
         a = b
         if !(a == b) {
-            system.println()
+            system.println('test')
         }
     }
 

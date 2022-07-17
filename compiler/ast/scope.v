@@ -54,6 +54,12 @@ pub fn (scope Scope) has_var(name string) bool {
 	return scope.vars.filter(it.name == name).len == 1
 }
 
+pub fn (mut scope Scope) set_not_known_in_context() {
+	for mut var in scope.vars {
+		var.eic = false
+	}
+}
+
 pub fn (scope Scope) get_explicit_method(name string) ?&Method {
 	methods := scope.methods.filter(it.name == name)
 	if methods.len == 1 {

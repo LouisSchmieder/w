@@ -143,7 +143,7 @@ fn (mut p Parser) number() string {
 }
 
 fn (mut p Parser) typ() ast.Type {
-	if p.tok.kind !in [.lsbr, .name] {
+	if p.tok.kind !in [.lsbr, .name, .band] {
 		return p.file.table.get_type('void')
 	}
 	if p.tok.kind == .lsbr {
@@ -162,6 +162,20 @@ fn (mut p Parser) typ() ast.Type {
 		if !p.file.table.contains_type(name) {
 			return p.file.table.add_type(name, 'Array', arr) or {
 				p.error('Something went wrong with array creation')
+				return ast.Type{}
+			}
+		}
+		return p.file.table.get_type(name)
+	}
+	if p.tok.kind == .band {
+		p.next()
+		typ := p.typ()
+
+		pointer := ast.Pointer{ast.Type{typ.name, 0}}
+		name := '&$typ.name'
+		if !p.file.table.contains_type(name) {
+			return p.file.table.add_type(name, typ.name, pointer) or {
+				p.error('Something went wrong with pointer creation')
 				return ast.Type{}
 			}
 		}

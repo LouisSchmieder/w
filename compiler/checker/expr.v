@@ -81,7 +81,7 @@ fn (mut c Checker) get_method(expr ast.Expr) ?&ast.Method {
 		}
 		ast.NewExpr {
 			scope := c.get_expr_scope(expr)?
-			mut m := scope.get_explicit_method('constuctor')?
+			mut m := scope.get_explicit_method('constructor')?
 			c.typ(mut m.return_type)
 			return m
 		}
@@ -108,6 +108,8 @@ fn (mut c Checker) get_expr_scope(expr ast.Expr) ?&ast.Scope {
 			return table.root(sym.info).scope
 		}
 		ast.NewExpr {
+			mut e := unsafe { &expr }
+			c.typ(mut e.typ)
 			table := c.get_table(expr.typ)?
 			sym := c.type_symbol(expr.typ)
 			return table.root(sym.info).scope
@@ -141,7 +143,11 @@ fn (mut c Checker) ident_expr(mut node ast.IdentExpr) ast.Type {
 }
 
 fn (mut c Checker) infix_expr(mut node ast.InfixExpr) ast.Type {
-	c.expr(node.left)
+	left := c.expr(node.left)
+	sym := c.type_symbol(left)
+	if sym.info is ast.Pointer {
+		node.ptr = true
+	}
 	mut var := c.get_var(node) or {
 		c.current_str = '${node.left}.$node.name'
 		c.error('Unknown field `${node.left}.$node.name`', c.current_pos)
@@ -171,7 +177,7 @@ fn (mut c Checker) check_parameters(got []ast.Expr, expected []ast.MethodParamet
 }
 
 fn (mut c Checker) call_expr(mut node ast.CallExpr) ast.Type {
-	c.expr(node.left)
+	node.left_type = c.expr(node.left)
 	mut method := c.get_method(node) or { return c.void_type }
 	c.typ(mut method.return_type)
 
@@ -185,11 +191,10 @@ fn (mut c Checker) call_expr(mut node ast.CallExpr) ast.Type {
 }
 
 fn (mut c Checker) new_expr(mut node ast.NewExpr) ast.Type {
-	c.typ(mut node.typ)
-
 	mut method := c.get_method(node) or { return c.void_type }
 
 	c.typ(mut method.return_type)
+	node.typ = method.return_type
 
 	c.check_parameters(node.parameters, method.parameters) or { return c.void_type }
 	return node.typ

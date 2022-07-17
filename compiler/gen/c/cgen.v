@@ -19,10 +19,13 @@ mut:
 
 	generated_classes []string
 
+	set_neic_global_scope bool
 	indent int
 	new_line bool
 
-	inside_class bool
+	inside_class  bool
+	is_base_class bool
+
 	class_type   ast.Type
 }
 
@@ -38,6 +41,7 @@ pub fn create_cgen(global_table &ast.Table) &CGen {
 pub fn (mut g CGen) gen_file(files_ []&ast.File) string {
 	mut files := unsafe { files_ }
 	g.gen_types(g.global_table)
+	g.default_headers()
 	for i, _ in files {
 		g.handle_file(mut files[i])
 	}
@@ -61,8 +65,20 @@ pub fn (mut g CGen) gen_file(files_ []&ast.File) string {
 	].join('\n')
 }
 
+fn (mut g CGen) default_headers() {
+	g.headers.writeln('#include <string.h>')
+
+	g.headers.writeln('#define _STR(str, len) String__constructor(Array__constructor(str, Int__constructor((char*)(long)len)))')
+}
+
 fn (mut g CGen) handle_file(mut file ast.File) {
 	g.scope = file.scope
+	if !g.set_neic_global_scope {
+		g.set_neic_global_scope = true
+		mut scope := g.scope.parent
+		scope.set_not_known_in_context()
+	}
+	g.scope.set_not_known_in_context()
 	g.table = file.table
 	g.file = file
 	g.gen_types(g.table)

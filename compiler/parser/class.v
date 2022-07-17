@@ -71,6 +71,7 @@ fn (mut p Parser) parse_class(base bool, base_size int) ast.ClassStmt {
 
 	return ast.ClassStmt{
 		pos: pos
+		base_class: base
 		typ: typ
 		block: block
 	}
