@@ -50,7 +50,12 @@ pub fn (mut c Checker) stmt(node_ ast.Stmt) {
 		ast.BlockStmt {
 			c.block_stmt(mut node)
 		}
-		else {}
+		ast.IfStmt {
+			c.if_stmt(mut node)
+		}
+		ast.ExprStmt {
+			c.expr(node.expr)
+		}
 	}
 }
 
@@ -103,7 +108,7 @@ fn (mut c Checker) method_stmt(mut node ast.MethodStmt) {
 fn (mut c Checker) assign_stmt(mut node ast.AssignStmt) {
 	if !node.define {
 		c.add_into_content = true
-		c.expr(node.left)
+		node.left_type = c.expr(node.left)
 		c.add_into_content = false
 		return
 	}
@@ -120,7 +125,7 @@ fn (mut c Checker) assign_stmt(mut node ast.AssignStmt) {
 			c.set_ident_type(left, node.left_type)
 		}
 		c.add_into_content = true
-		c.expr(left)
+		node.left_type = c.expr(left)
 		c.add_into_content = false
 	}
 }

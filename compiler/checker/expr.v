@@ -29,6 +29,20 @@ fn (mut c Checker) expr(expr_ ast.Expr) ast.Type {
 		ast.CastExpr {
 			return c.cast_expr(mut expr)
 		}
+		ast.BracketExpr {
+			return c.expr(expr.expr)
+		}
+		ast.NegateExpr {
+			typ := c.expr(expr.expr)
+			return if typ == c.global_table.get_type('bool') {
+				typ
+			} else {
+				c.void_type
+			}
+		}
+		ast.CompareExpr {
+			return c.comp_expr(mut expr)
+		}
 		else {
 			c.error('Unknown expression `$expr`', c.current_pos)
 		}
@@ -55,15 +69,21 @@ fn (mut c Checker) get_method(expr ast.Expr) ?&ast.Method {
 	match expr {
 		ast.IdentExpr {
 			scope := c.get_expr_scope(expr)?
-			return scope.get_method(expr.name)
+			mut m := scope.get_method(expr.name)?
+			c.typ(mut m.return_type)
+			return m
 		}
 		ast.InfixExpr, ast.CallExpr {
 			scope := c.get_expr_scope(expr.left)?
-			return scope.get_explicit_method(expr.name)
+			mut m := scope.get_explicit_method(expr.name)?
+			c.typ(mut m.return_type)
+			return m
 		}
 		ast.NewExpr {
 			scope := c.get_expr_scope(expr)?
-			return scope.get_explicit_method('constuctor')
+			mut m := scope.get_explicit_method('constuctor')?
+			c.typ(mut m.return_type)
+			return m
 		}
 		else {
 			return none
@@ -155,9 +175,9 @@ fn (mut c Checker) call_expr(mut node ast.CallExpr) ast.Type {
 	mut method := c.get_method(node) or { return c.void_type }
 	c.typ(mut method.return_type)
 
-	c.check_parameters(node.parameters, method.parameters) or { return c.void_type }
+	node.return_type = method.return_type
 
-	c.typ(mut node.return_type)
+	c.check_parameters(node.parameters, method.parameters) or { return c.void_type }
 	if node.return_type.idx == -1 {
 		return c.void_type
 	}
@@ -183,4 +203,23 @@ fn (mut c Checker) cast_expr(mut node ast.CastExpr) ast.Type {
 		return c.void_type
 	}
 	return node.to
+}
+
+fn (mut c Checker) comp_expr(mut node ast.CompareExpr) ast.Type {
+	b := c.global_table.get_type('bool')
+	if node.kind == .unknown {
+		c.error('Unknown compare type', c.current_pos)
+		return b
+	}
+
+	left := c.expr(node.left)
+	right := c.expr(node.right)
+
+	if left != right {
+		c.error('Right has to be the same type as left', c.current_pos)
+		return b
+	}
+
+
+	return b
 }

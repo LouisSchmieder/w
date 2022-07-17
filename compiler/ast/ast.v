@@ -63,6 +63,7 @@ pub mut:
 pub struct IfStmt {
 pub:
 	pos      token.Position
+pub mut:
 	branches []IfBranch
 }
 

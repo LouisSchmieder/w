@@ -70,7 +70,9 @@ fn (mut p Parser) parse_method() ast.MethodStmt {
 	p.open_scope()
 
 	for para in parameters {
-		p.scope.add_var(ast.create_var(para.name, para.typ, .publ, false))
+		mut var := ast.create_var(para.name, para.typ, .publ, false)
+		var.eic = true
+		p.scope.add_var(var)
 	}
 
 	block := p.parse_block(false)

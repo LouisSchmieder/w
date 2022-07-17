@@ -1,6 +1,6 @@
 import "byte.w"
 
-pub class String extends Byte {
+pub class String {
 
     priv mut bytes: []Byte
 

@@ -81,7 +81,7 @@ fn (mut p Parser) parse_alias(typ ast.Type) {
 		p.next()
 		for {
 			name := p.name()
-			p.file.table.add_type(name, name, ast.Alias{typ}) or {
+			p.file.table.add_type(name, 'alias_$name', ast.Alias{typ}) or {
 				p.error('Type $name already exists')
 				continue
 			}

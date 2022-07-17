@@ -33,7 +33,6 @@ pub fn (mut pm ParserManager) add_parser(filepath_ string) {
 	if filepath in pm.parsers {
 		return
 	}
-	eprintln('Added file $filepath')
 	mut parser := create_parser(filepath, &pm) or {
 		eprintln(err)
 		return
@@ -161,7 +160,7 @@ fn (mut p Parser) typ() ast.Type {
 
 		name := '[]$typ.name'
 		if !p.file.table.contains_type(name) {
-			return p.file.table.add_type(name, 'array', arr) or {
+			return p.file.table.add_type(name, 'Array', arr) or {
 				p.error('Something went wrong with array creation')
 				return ast.Type{}
 			}

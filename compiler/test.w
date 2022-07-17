@@ -22,6 +22,9 @@ pub class Program {
         bitField = <byte> 0x00
         b: string
         a = b
+        if !(a == b) {
+            system.println()
+        }
     }
 
 }
