@@ -23,5 +23,5 @@ fn main() {
 
 	mut gen := c.create_cgen(global)
 	file_str := gen.gen_file(parser.files)
-	os.write_file('out.tmp.c', file_str) ?
+	os.write_file('out.tmp.c', file_str)?
 }

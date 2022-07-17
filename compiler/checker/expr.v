@@ -220,6 +220,5 @@ fn (mut c Checker) comp_expr(mut node ast.CompareExpr) ast.Type {
 		return b
 	}
 
-
 	return b
 }

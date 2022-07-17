@@ -62,7 +62,7 @@ pub mut:
 
 pub struct IfStmt {
 pub:
-	pos      token.Position
+	pos token.Position
 pub mut:
 	branches []IfBranch
 }
@@ -180,4 +180,3 @@ pub:
 pub mut:
 	typ Type
 }
-

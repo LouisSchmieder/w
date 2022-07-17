@@ -6,7 +6,7 @@ import token
 [heap]
 pub struct Scope {
 pub mut:
-	parent &Scope
+	parent  &Scope
 	vars    []&Var
 	methods []&Method
 mut:
@@ -131,7 +131,7 @@ pub fn create_global_scope(mut scopes []&Scope) []util.Info {
 		public_methods := scope.methods.filter(it.access == .publ)
 		scope.vars = scope.vars.filter(it.access != .publ)
 		scope.methods = scope.methods.filter(it.access != .publ)
-		for var in public_vars{
+		for var in public_vars {
 			if gscope.has_var(var.name) {
 				infos << util.error('Duplicate variable $var.name', token.Token{})
 				continue
