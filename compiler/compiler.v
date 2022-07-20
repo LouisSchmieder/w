@@ -21,7 +21,7 @@ fn main() {
 		file.write_errors()
 	}
 
-	mut gen := c.create_cgen(global)
+	mut gen := c.create_cgen(global, os.args[2])
 	file_str := gen.gen_file(parser.files)
 	os.write_file('out.tmp.c', file_str)?
 }

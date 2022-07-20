@@ -3,15 +3,51 @@ module c
 import ast
 import strings
 
+struct Builder {
+mut:
+	builder  strings.Builder
+	indent   int
+	new_line bool
+}
+
+fn (mut builder Builder) write(msg string) {
+	if builder.new_line {
+		builder.new_line = false
+		builder.builder.write_string('\t'.repeat(builder.indent))
+	}
+	builder.builder.write_string(msg)
+}
+
+fn (mut builder Builder) writeln(msg string) {
+	if builder.new_line {
+		builder.builder.write_string('\t'.repeat(builder.indent))
+	}
+	builder.builder.writeln(msg)
+	builder.new_line = true
+}
+
+fn (builder Builder) free_builder() {
+	unsafe {
+		builder.builder.free()
+	}
+}
+
+fn (mut builder Builder) str() string {
+	return builder.builder.str()
+}
+
 pub struct CGen {
 	global_table &ast.Table
 mut:
-	headers      strings.Builder
-	types        strings.Builder
-	declarations strings.Builder
-	methods      strings.Builder
-	main         strings.Builder
-	src          strings.Builder
+	headers      Builder
+	types        Builder
+	declarations Builder
+	methods      Builder
+	constants    Builder
+	main         Builder
+	src          Builder
+
+	current &Builder
 
 	scope &ast.Scope
 	table &ast.Table
@@ -20,20 +56,22 @@ mut:
 	generated_classes []string
 
 	set_neic_global_scope bool
-	indent                int
-	new_line              bool
 
 	inside_class  bool
 	is_base_class bool
 
 	class_type ast.Type
+
+	init string
 }
 
-pub fn create_cgen(global_table &ast.Table) &CGen {
+pub fn create_cgen(global_table &ast.Table, init string) &CGen {
 	return &CGen{
 		global_table: global_table
+		init: init
 		scope: 0
 		table: 0
+		current: 0
 		file: 0
 	}
 }
@@ -42,24 +80,37 @@ pub fn (mut g CGen) gen_file(files_ []&ast.File) string {
 	mut files := unsafe { files_ }
 	g.gen_types(g.global_table)
 	g.default_headers()
+	g.current = &g.src
+	g.constants.writeln('// Constants')
+
+	// Main header
+	g.main.writeln('int main(const char* args) {')
+	g.main.indent++
+
 	for i, _ in files {
 		g.handle_file(mut files[i])
 	}
 
+	g.main.writeln('${g.typ(g.global_table.get_type(g.init))}__constructor();')
+
+	g.main.indent--
+	g.main.writeln('}')
+	g.main.writeln('// The end')
+
 	defer {
-		unsafe {
-			g.headers.free()
-			g.types.free()
-			g.declarations.free()
-			g.main.free()
-			g.src.free()
-		}
+		g.headers.free_builder()
+		g.types.free_builder()
+		g.declarations.free_builder()
+		g.constants.free_builder()
+		g.main.free_builder()
+		g.src.free_builder()
 	}
 	return [
 		g.headers.str(),
 		g.types.str(),
 		g.declarations.str(),
 		g.methods.str(),
+		g.constants.str(),
 		g.src.str(),
 		g.main.str(),
 	].join('\n')
@@ -89,18 +140,17 @@ fn (mut g CGen) handle_file(mut file ast.File) {
 }
 
 fn (mut g CGen) write(data string) {
-	if g.new_line {
-		g.new_line = false
-		g.src.write_string('\t'.repeat(g.indent))
-	}
-	g.src.write_string(data)
+	g.current.write(data)
 }
 
 fn (mut g CGen) writeln(data string) {
-	if g.new_line {
-		g.new_line = false
-		g.src.write_string('\t'.repeat(g.indent))
-	}
-	g.src.writeln(data)
-	g.new_line = true
+	g.current.writeln(data)
+}
+
+fn (mut g CGen) inc_indent() {
+	g.current.indent++
+}
+
+fn (mut g CGen) dec_indent() {
+	g.current.indent--
 }

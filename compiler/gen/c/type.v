@@ -97,7 +97,7 @@ fn (mut g CGen) gen_class(sym ast.TypeSymbol) {
 	buffer.writeln('};')
 	buffer.writeln('')
 
-	g.declarations.write_string(buffer.str())
+	g.declarations.write(buffer.str())
 	g.generated_classes << name
 	unsafe {
 		buffer.free()

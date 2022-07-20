@@ -2,7 +2,7 @@ pub class Main {
 
     priv mut program: Program
 
-    constructor(args: []string) {
+    constructor() {
         this.program = new Program()
     }
 
@@ -22,9 +22,6 @@ pub class Program {
         bitField = <byte> 0x00
         b: string
         a = b
-        if !(a == b) {
-            system.println('test')
-        }
     }
 
 }

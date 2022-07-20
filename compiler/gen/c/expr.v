@@ -20,8 +20,7 @@ fn (mut g CGen) expr(expr ast.Expr) {
 			g.new_expr(expr)
 		}
 		ast.CastExpr {
-			g.write('(${g.typ(expr.to)}) ')
-			g.expr(expr.expr)
+			g.cast_expr(expr)
 		}
 		ast.NumberExpr {
 			g.write('Int__constructor((char*) (long) $expr.num)')
@@ -89,4 +88,23 @@ fn (mut g CGen) call_expr(expr ast.CallExpr) {
 		}
 	}
 	g.write(')')
+}
+
+fn (mut g CGen) cast_expr(expr ast.CastExpr) {
+	table := g.get_table(expr.to)
+	sym := table.get_type_symbol(expr.to)
+	if table.root(sym.info) is ast.BaseClass {
+		if expr.expr is ast.NumberExpr {
+			num := expr.expr as ast.NumberExpr
+			g.write('${g.typ(expr.to)}__constructor((char*) (long) $num.num)')
+			return
+		} else if expr.expr is ast.StringExpr {
+			str := expr.expr as ast.StringExpr
+			g.write('${g.typ(expr.to)}__constructor("$str.lit")')
+			return
+		}
+	}
+
+	g.write('(${g.typ(expr.to)}) ')
+	g.expr(expr.expr)
 }

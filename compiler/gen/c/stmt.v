@@ -74,7 +74,7 @@ fn (mut g CGen) method_stmt(node ast.MethodStmt) {
 	g.methods.writeln('$method;')
 
 	g.writeln('$method {')
-	g.indent++
+	g.inc_indent()
 
 	if constructor {
 		g.writeln('${g.typ(g.class_type)} this = {};')
@@ -93,7 +93,7 @@ fn (mut g CGen) method_stmt(node ast.MethodStmt) {
 	if constructor {
 		g.writeln('return this;')
 	}
-	g.indent--
+	g.dec_indent()
 	g.writeln('}')
 	g.writeln('')
 }
@@ -105,7 +105,15 @@ fn (mut g CGen) assign_stmt(node ast.AssignStmt) {
 
 	if node.left is ast.IdentExpr {
 		mut var := g.scope.get_var((node.left as ast.IdentExpr).name) or { &ast.Var{} }
-		if !var.eic {
+		if var.global {
+			g.constants.writeln('${g.typ(var.typ)} $var.name = {};')
+			tmp_current := g.current
+			g.current = &g.main
+			defer {
+				g.current = tmp_current
+			}
+		}
+		if !var.eic && !var.global {
 			g.write('${g.typ(var.typ)} ')
 			var.eic = true
 		}
@@ -139,8 +147,8 @@ fn (mut g CGen) if_branch(branch ast.IfBranch) {
 	g.write('(')
 	g.expr(branch.cond)
 	g.writeln(') {')
-	g.indent++
+	g.inc_indent()
 	g.stmt(branch.block)
-	g.indent--
+	g.dec_indent()
 	g.write('}')
 }

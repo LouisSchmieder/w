@@ -46,8 +46,9 @@ pub:
 pub struct BlockStmt {
 pub:
 	pos   token.Position
-	stmts []Stmt
 	scope &Scope
+pub mut:
+	stmts []Stmt
 }
 
 pub struct AssignStmt {

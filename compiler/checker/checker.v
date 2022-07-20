@@ -103,6 +103,10 @@ fn (mut c Checker) method_stmt(mut node ast.MethodStmt) {
 		c.typ(mut parameter.typ)
 	}
 
+	if node.block.scope == unsafe { nil } {
+		return
+	}
+
 	c.stmt(node.block)
 }
 

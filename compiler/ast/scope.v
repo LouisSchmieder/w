@@ -6,10 +6,9 @@ import token
 [heap]
 pub struct Scope {
 pub mut:
-	parent  &Scope
-	vars    []&Var
-	methods []&Method
-mut:
+	parent     &Scope
+	vars       []&Var
+	methods    []&Method
 	has_parent bool
 }
 
@@ -96,15 +95,17 @@ pub:
 	name    string
 	access  AccessType
 	mutable bool
+	global  bool
 pub mut:
 	typ Type
 	eic bool // Exists in content
 }
 
-pub fn create_var(name string, typ Type, access AccessType, mutable bool) &Var {
+pub fn create_var(name string, typ Type, access AccessType, mutable bool, global bool) &Var {
 	return &Var{
 		name: name
 		typ: typ
+		global: global
 		access: access
 		mutable: mutable
 	}

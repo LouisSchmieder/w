@@ -153,11 +153,14 @@ fn (mut p Parser) parse_assign_with_left(left ast.Expr, pos token.Position) ast.
 		left_type = p.typ()
 	}
 
+	global := !p.scope.has_parent
+
 	if left is ast.IdentExpr {
 		// Declaration
 		if p.tok.kind != .eq {
 			if left_type != ast.Type{} {
-				p.scope.add_var(ast.create_var(left.name, left_type, p.access, p.mutable))
+				p.scope.add_var(ast.create_var(left.name, left_type, p.access, p.mutable,
+					global))
 				return ast.AssignStmt{
 					pos: pos
 					left: left
@@ -182,7 +185,7 @@ fn (mut p Parser) parse_assign_with_left(left ast.Expr, pos token.Position) ast.
 			ast.Type{'unresolved', -2}
 		}
 		left_type = typ
-		p.scope.add_var(ast.create_var(left.name, typ, p.access, p.mutable))
+		p.scope.add_var(ast.create_var(left.name, typ, p.access, p.mutable, global))
 	}
 	return ast.AssignStmt{
 		pos: pos

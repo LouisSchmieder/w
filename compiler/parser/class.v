@@ -44,7 +44,7 @@ fn (mut p Parser) parse_class(base bool, base_size int) ast.ClassStmt {
 	ptyp := p.file.table.add_type('&$name', 'pointer_$name', ast.Pointer{typ}) or {
 		p.file.table.get_type('&$name')
 	}
-	p.scope.add_var(ast.create_var('this', ptyp, .priv, false))
+	p.scope.add_var(ast.create_var('this', ptyp, .priv, false, false))
 	mut this := p.scope.get_var('this') or {
 		p.error('Var `this` was not added to scope')
 		return ast.ClassStmt{}
@@ -59,9 +59,34 @@ fn (mut p Parser) parse_class(base bool, base_size int) ast.ClassStmt {
 	p.inside_class = true
 	p.class_type = typ
 
-	block := p.parse_block(true)
+	mut block := p.parse_block(true)
 
 	p.close_scope()
+
+	if !block.scope.has_method('constructor') && p.class_type.name != 'void' {
+		block.stmts << ast.MethodStmt{
+			name: 'constructor'
+			pos: pos
+			ret_typ: p.class_type
+			parameters: []
+			block: ast.BlockStmt{
+				scope: ast.create_scope(block.scope)
+			}
+		}
+		p.scope.add_method(ast.create_method('constructor', p.access, p.class_type, []))
+	}
+	if !block.scope.has_method('destructor') && p.class_type.name != 'void' {
+		block.stmts << ast.MethodStmt{
+			name: 'destructor'
+			pos: pos
+			ret_typ: p.class_type
+			parameters: []
+			block: ast.BlockStmt{
+				scope: ast.create_scope(block.scope)
+			}
+		}
+		p.scope.add_method(ast.create_method('destructor', p.access, p.class_type, []))
+	}
 
 	p.inside_base_class = tmp_base_class
 	p.inside_class = tmp_inside_class
